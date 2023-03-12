@@ -1,0 +1,46 @@
+{
+  "name": "dposkachei-echo-socketio-v4",
+  "version": "v2.0.3",
+  "description": "Laravel Echo Node JS Server for Socket.io version 4",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dposkachei/echo-socketio-v4"
+  },
+  "main": "dist/index.js",
+  "keywords": [
+    "laravel",
+    "socket.io"
+  ],
+  "author": "Dmitrii Poskachei",
+  "license": "MIT",
+  "jshintConfig": {
+    "esversion": 6
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "prepublish": "npm run build"
+  },
+  "dependencies": {
+    "colors": "1.4.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "inquirer": "^7.1.0",
+    "ioredis": "^4.28.2",
+    "lodash": "^4.17.15",
+    "request": "^2.88.2",
+    "socket.io": "^4.4.1",
+    "yargs": "^15.3.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.149",
+    "@types/node": "^13.9.1",
+    "typescript": "4.5.4"
+  },
+  "peerDependecies": {
+    "sqlite3": "^3.1.13"
+  },
+  "bin": {
+    "laravel-echo-server": "bin/server.js"
+  }
+}
