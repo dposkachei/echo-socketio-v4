@@ -93,13 +93,13 @@ export class HttpApi {
         let prefix = url.parse(req.url, true).query.filter_by_prefix;
         let rooms = this.io.sockets.adapter.rooms;
         let channels = {};
-        rooms.forEach(function(channelName) {
-            if (prefix && !channelName.startsWith(prefix)) {
+        rooms.forEach(function(channelName, key) {
+            if (prefix && !key.startsWith(prefix)) {
                 return;
             }
 
-            channels[channelName] = {
-                subscription_count: rooms.get(channelName).length,
+            channels[key] = {
+                subscription_count: rooms.get(key).size,
                 occupied: true
             };
         });
