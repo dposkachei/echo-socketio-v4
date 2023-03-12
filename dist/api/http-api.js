@@ -45,19 +45,12 @@ var HttpApi = (function () {
         var prefix = url.parse(req.url, true).query.filter_by_prefix;
         var rooms = this.io.sockets.adapter.rooms;
         var channels = {};
-        log_1.Log.info(prefix);
-        log_1.Log.info(rooms);
-        log_1.Log.info(Object.keys(rooms));
-        Object.keys(rooms).forEach(function (channelName) {
-            log_1.Log.info(channelName);
-            if (rooms[channelName].sockets[channelName]) {
-                return;
-            }
+        rooms.forEach(function (channelName) {
             if (prefix && !channelName.startsWith(prefix)) {
                 return;
             }
             channels[channelName] = {
-                subscription_count: rooms[channelName].length,
+                subscription_count: rooms.get(channelName).length,
                 occupied: true
             };
         });
@@ -65,8 +58,8 @@ var HttpApi = (function () {
     };
     HttpApi.prototype.getChannel = function (req, res) {
         var channelName = req.params.channelName;
-        var room = this.io.sockets.adapter.rooms[channelName];
-        var subscriptionCount = room ? room.length : 0;
+        var room = this.io.sockets.adapter.rooms.get(channelName);
+        var subscriptionCount = room ? room.size : 0;
         var result = {
             subscription_count: subscriptionCount,
             occupied: !!subscriptionCount
