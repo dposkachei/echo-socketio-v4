@@ -1,6 +1,6 @@
 {
   "name": "dposkachei-echo-socketio-v4",
-  "version": "v2.0.5",
+  "version": "v2.0.6",
   "description": "Laravel Echo Node JS Server for Socket.io version 4",
   "repository": {
     "type": "git",
