@@ -73,7 +73,7 @@ var EchoServer = (function () {
         });
     };
     EchoServer.prototype.startup = function () {
-        log_1.Log.title("\nL A R A V E L  E C H O  S E R V E R DIMAS\n");
+        log_1.Log.title("\nL A R A V E L  E C H O  S E R V E R v2 dist!\n");
         log_1.Log.info("version ".concat(packageFile.version, "\n"));
         if (this.options.devMode) {
             log_1.Log.warning('Starting server in DEV mode...\n');

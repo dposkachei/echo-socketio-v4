@@ -53,6 +53,22 @@ export class PresenceChannel {
      */
     removeInactive(channel: string, members: any[], member: any): Promise<any> {
         return new Promise((resolve, reject) => {
+            let rooms = this.io.of("/").adapter.rooms.get(channel);
+            if (rooms === undefined) {
+                rooms = [];
+            }
+            let clients = [];
+            rooms.forEach(function(client) {
+                clients.push(client);
+            });
+            members = members || [];
+            members = members.filter((member) => {
+                return clients.indexOf(member.socketId) >= 0;
+            });
+
+            this.db.set(channel + ":members", members);
+
+            resolve(members);
             // this.io
             //     .of("/")
             //     .in(channel)
@@ -67,21 +83,21 @@ export class PresenceChannel {
             //         resolve(members);
             //     })
             //     console.log('okkkkkkkk')
-
-                this.io
-                .of("/")
-                .in(channel)
-                .allSockets((error, clients) => {
-                    members = members || [];
-                    members = members.filter((member) => {
-                        return clients.indexOf(member.socketId) >= 0;
-                    });
-
-                    this.db.set(channel + ":members", members);
-
-                    resolve(members);
-                })
-                ;
+            //
+            //     this.io
+            //     .of("/")
+            //     .in(channel)
+            //     .allSockets((error, clients) => {
+            //         members = members || [];
+            //         members = members.filter((member) => {
+            //             return clients.indexOf(member.socketId) >= 0;
+            //         });
+            //
+            //         this.db.set(channel + ":members", members);
+            //
+            //         resolve(members);
+            //     })
+            //     ;
         });
     }
 
@@ -138,6 +154,9 @@ export class PresenceChannel {
                 let member = members.find(
                     (member) => member.socketId == socket.id
                 );
+                if (member === undefined) {
+                    return;
+                }
                 members = members.filter((m) => m.socketId != member.socketId);
 
                 this.db.set(channel + ":members", members);
@@ -157,15 +176,18 @@ export class PresenceChannel {
      * On join event handler.
      */
     onJoin(socket: any, channel: string, member: any): void {
-        this.io.sockets.connected[socket.id].broadcast
-            .to(channel)
-            .emit("presence:joining", channel, member);
+        Log.info('--- presence:joining ---' + channel + ' user_id:' + member.user_id);
+        this.io.to(channel).emit("presence:joining", channel, member);
+        // this.io.sockets.connected[socket.id].broadcast
+        //     .to(channel)
+        //     .emit("presence:joining", channel, member);
     }
 
     /**
      * On leave emitter.
      */
     onLeave(channel: string, member: any): void {
+        Log.info('--- presence:leaving ---' + channel + ' user_id:' + member.user_id);
         this.io.to(channel).emit("presence:leaving", channel, member);
     }
 
@@ -173,6 +195,7 @@ export class PresenceChannel {
      * On subscribed event emitter.
      */
     onSubscribed(socket: any, channel: string, members: any[]) {
+        Log.info('--- presence:subscribed ---' + channel + ' ' + JSON.stringify(members.map(x => x.user_id)));
         this.io.to(socket.id).emit("presence:subscribed", channel, members);
     }
 }
