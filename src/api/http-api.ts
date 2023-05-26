@@ -19,7 +19,9 @@ export class HttpApi {
      * @param  {object} dbOptions object
      */
     constructor(private io, private channel, private express, private options, private dbOptions) {
-        this.db = new Database(options);
+        if (dbOptions !== undefined) {
+            this.db = new Database(dbOptions);
+        }
     }
 
     /**
