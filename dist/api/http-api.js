@@ -2,14 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HttpApi = void 0;
 var log_1 = require("./../log");
+var database_1 = require("./../database");
 var url = require('url');
 var _ = require("lodash");
 var HttpApi = (function () {
-    function HttpApi(io, channel, express, options) {
+    function HttpApi(io, channel, express, options, dbOptions) {
         this.io = io;
         this.channel = channel;
         this.express = express;
         this.options = options;
+        this.db = null;
+        if (dbOptions !== undefined) {
+            this.db = new database_1.Database(dbOptions);
+        }
     }
     HttpApi.prototype.init = function () {
         var _this = this;
@@ -42,8 +47,10 @@ var HttpApi = (function () {
         });
     };
     HttpApi.prototype.getChannels = function (req, res) {
+        var _this = this;
         var prefix = url.parse(req.url, true).query.filter_by_prefix;
         var rooms = this.io.sockets.adapter.rooms;
+
         var channels = {};
         rooms.forEach(function (channelName, key) {
             if (prefix && !key.startsWith(prefix)) {
@@ -51,10 +58,25 @@ var HttpApi = (function () {
             }
             channels[key] = {
                 subscription_count: rooms.get(key).size,
-                occupied: true
+                occupied: true,
+                version: null,
             };
+
         });
-        res.json({ channels: channels });
+        _this.db.get("private:versions").then(function (versions) {
+            console.log(versions);
+            var ar = {};
+            versions.forEach(function (version) {
+                ar[version.key] = version.value;
+            });
+            Object.keys(channels).forEach(function (key) {
+                if (ar[key] !== undefined) {
+                    channels[key].version = ar[key];
+                }
+            });
+            res.json({ channels: channels });
+        });
+
     };
     HttpApi.prototype.getChannel = function (req, res) {
         var channelName = req.params.channelName;

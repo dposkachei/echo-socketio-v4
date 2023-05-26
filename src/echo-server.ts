@@ -108,7 +108,7 @@ export class EchoServer {
             if (this.options.subscribers.redis)
                 this.subscribers.push(new RedisSubscriber(this.options));
 
-            this.httpApi = new HttpApi(io, this.channel, this.server.express, this.options.apiOriginAllow);
+            this.httpApi = new HttpApi(io, this.channel, this.server.express, this.options.apiOriginAllow, this.options);
             this.httpApi.init();
 
             this.onConnect();

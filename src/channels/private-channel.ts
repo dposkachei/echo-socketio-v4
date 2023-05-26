@@ -2,13 +2,20 @@ let request = require('request');
 let url = require('url');
 import { Channel } from './channel';
 import { Log } from './../log';
+import { Database } from './../database';
 
 export class PrivateChannel {
+    /**
+     * Database instance.
+     */
+    db: Database;
+
     /**
      * Create a new private channel instance.
      */
     constructor(private options: any) {
         this.request = request;
+        this.db = new Database(options);
     }
 
     /**
@@ -20,12 +27,28 @@ export class PrivateChannel {
      * Send authentication request to application server.
      */
     authenticate(socket: any, data: any): Promise<any> {
+        const self = this;
         let options = {
             url: this.authHost(socket) + this.options.authEndpoint,
-            form: { channel_name: data.channel },
+            form: {
+                channel_name: data.channel,
+                properties: data.properties || {},
+            },
             headers: (data.auth && data.auth.headers) ? data.auth.headers : {},
             rejectUnauthorized: false
         };
+        if (data.properties !== undefined && data.properties.version !== undefined) {
+            self.db.get("private:versions").then(function (versions) {
+                const member = versions.find(function (version) { return version.key === data.channel; });
+                if (member === undefined) {
+                    versions.push({
+                        key: data.channel,
+                        value: data.properties.version,
+                    });
+                }
+                self.db.set("private:versions", versions);
+            });
+        }
 
         if (this.options.devMode) {
             Log.info(`[${new Date().toISOString()}] - Sending auth request to: ${options.url}\n`);

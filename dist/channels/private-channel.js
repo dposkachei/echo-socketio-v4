@@ -4,18 +4,39 @@ exports.PrivateChannel = void 0;
 var request = require('request');
 var url = require('url');
 var log_1 = require("./../log");
+var database_1 = require("./../database");
 var PrivateChannel = (function () {
     function PrivateChannel(options) {
         this.options = options;
         this.request = request;
+        this.db = new database_1.Database(options);
     }
+    PrivateChannel.prototype.getVersions = function () {
+        return this.db.get("private:versions");
+    };
     PrivateChannel.prototype.authenticate = function (socket, data) {
+        var _this = this;
         var options = {
             url: this.authHost(socket) + this.options.authEndpoint,
-            form: { channel_name: data.channel },
+            form: {
+                channel_name: data.channel,
+                properties: data.properties || {},
+            },
             headers: (data.auth && data.auth.headers) ? data.auth.headers : {},
             rejectUnauthorized: false
         };
+        if (data.properties !== undefined && data.properties.version !== undefined) {
+            _this.getVersions().then(function (versions) {
+                var member = versions.find(function (version) { return version.key === data.channel; });
+                if (member === undefined) {
+                    versions.push({
+                        key: data.channel,
+                        value: data.properties.version,
+                    });
+                }
+                _this.db.set("private:versions", versions);
+            });
+        }
         if (this.options.devMode) {
             log_1.Log.info("[".concat(new Date().toISOString(), "] - Sending auth request to: ").concat(options.url, "\n"));
         }

@@ -1,8 +1,14 @@
 import { Log } from './../log';
 let url = require('url');
 import * as _ from 'lodash';
+import { Database } from './../database';
 
 export class HttpApi {
+    /**
+     * Database instance.
+     */
+    db: Database;
+
     /**
      * Create new instance of http subscriber.
      *
@@ -10,8 +16,11 @@ export class HttpApi {
      * @param  {any} channel
      * @param  {any} express
      * @param  {object} options object
+     * @param  {object} dbOptions object
      */
-    constructor(private io, private channel, private express, private options) { }
+    constructor(private io, private channel, private express, private options, private dbOptions) {
+        this.db = new Database(options);
+    }
 
     /**
      * Initialize the API.
@@ -103,8 +112,18 @@ export class HttpApi {
                 occupied: true
             };
         });
-
-        res.json({ channels: channels });
+        this.db.get("private:versions").then(function (versions) {
+            let ar = {};
+            versions.forEach(function (version) {
+                ar[version.key] = version.value;
+            });
+            Object.keys(channels).forEach(function (key) {
+                if (ar[key] !== undefined) {
+                    channels[key].version = ar[key];
+                }
+            });
+            res.json({ channels: channels });
+        });
     }
 
     /**

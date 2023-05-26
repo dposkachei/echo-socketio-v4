@@ -66,14 +66,14 @@ var EchoServer = (function () {
                 _this.subscribers.push(new subscribers_1.HttpSubscriber(_this.server.express, _this.options));
             if (_this.options.subscribers.redis)
                 _this.subscribers.push(new subscribers_1.RedisSubscriber(_this.options));
-            _this.httpApi = new api_1.HttpApi(io, _this.channel, _this.server.express, _this.options.apiOriginAllow);
+            _this.httpApi = new api_1.HttpApi(io, _this.channel, _this.server.express, _this.options.apiOriginAllow, _this.options);
             _this.httpApi.init();
             _this.onConnect();
             _this.listen().then(function () { return resolve(); }, function (err) { return log_1.Log.error(err); });
         });
     };
     EchoServer.prototype.startup = function () {
-        log_1.Log.title("\nL A R A V E L  E C H O  S E R V E R v2 dist!\n");
+        log_1.Log.title("\nL A R A V E L  E C H O  S E R V E R DIMAS 2.3!\n");
         log_1.Log.info("version ".concat(packageFile.version, "\n"));
         if (this.options.devMode) {
             log_1.Log.warning('Starting server in DEV mode...\n');
