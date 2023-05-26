@@ -109,7 +109,8 @@ export class HttpApi {
 
             channels[key] = {
                 subscription_count: rooms.get(key).size,
-                occupied: true
+                occupied: true,
+                version: null,
             };
         });
         this.db.get("private:versions").then(function (versions) {
