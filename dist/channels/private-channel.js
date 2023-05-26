@@ -27,14 +27,15 @@ var PrivateChannel = (function () {
         };
         if (data.properties !== undefined && data.properties.version !== undefined) {
             _this.getVersions().then(function (versions) {
-                var member = versions.find(function (version) { return version.key === data.channel; });
+                var ar = versions || [];
+                var member = ar.find(function (version) { return version.key === data.channel; });
                 if (member === undefined) {
-                    versions.push({
+                    ar.push({
                         key: data.channel,
                         value: data.properties.version,
                     });
                 }
-                _this.db.set("private:versions", versions);
+                _this.db.set("private:versions", ar);
             });
         }
         if (this.options.devMode) {

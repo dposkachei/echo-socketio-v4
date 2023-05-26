@@ -39,14 +39,15 @@ export class PrivateChannel {
         };
         if (data.properties !== undefined && data.properties.version !== undefined) {
             self.db.get("private:versions").then(function (versions) {
-                const member = versions.find(function (version) { return version.key === data.channel; });
+                let ar = versions || [];
+                const member = ar.find(function (version) { return version.key === data.channel; });
                 if (member === undefined) {
-                    versions.push({
+                    ar.push({
                         key: data.channel,
                         value: data.properties.version,
                     });
                 }
-                self.db.set("private:versions", versions);
+                self.db.set("private:versions", ar);
             });
         }
 
