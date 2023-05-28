@@ -37,17 +37,17 @@ export class PrivateChannel {
             headers: (data.auth && data.auth.headers) ? data.auth.headers : {},
             rejectUnauthorized: false
         };
-        if (data.properties !== undefined && data.properties.version !== undefined) {
-            self.db.get("private:versions").then(function (versions) {
-                let ar = versions || [];
-                const member = ar.find(function (version) { return version.key === data.channel; });
+        if (data.properties !== undefined) {
+            self.db.get("private:properties").then(function (properties) {
+                let ar = properties || [];
+                const member = ar.find(function (property) { return property.key === data.channel; });
                 if (member === undefined) {
                     ar.push({
                         key: data.channel,
-                        value: data.properties.version,
+                        value: data.properties,
                     });
                 }
-                self.db.set("private:versions", ar);
+                self.db.set("private:properties", ar);
             });
         }
 

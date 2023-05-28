@@ -59,19 +59,19 @@ var HttpApi = (function () {
             channels[key] = {
                 subscription_count: rooms.get(key).size,
                 occupied: true,
-                version: null,
+                properties: null,
             };
 
         });
-        _this.db.get("private:versions").then(function (versions) {
-            console.log(versions);
+        _this.db.get("private:properties").then(function (properties) {
+            console.log(properties);
             var ar = {};
-            versions.forEach(function (version) {
-                ar[version.key] = version.value;
+            properties.forEach(function (property) {
+                ar[property.key] = property.value;
             });
             Object.keys(channels).forEach(function (key) {
                 if (ar[key] !== undefined) {
-                    channels[key].version = ar[key];
+                    channels[key].properties = ar[key];
                 }
             });
             res.json({ channels: channels });

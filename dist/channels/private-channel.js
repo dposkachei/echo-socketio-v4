@@ -11,9 +11,6 @@ var PrivateChannel = (function () {
         this.request = request;
         this.db = new database_1.Database(options);
     }
-    PrivateChannel.prototype.getVersions = function () {
-        return this.db.get("private:versions");
-    };
     PrivateChannel.prototype.authenticate = function (socket, data) {
         var _this = this;
         var options = {
@@ -25,17 +22,17 @@ var PrivateChannel = (function () {
             headers: (data.auth && data.auth.headers) ? data.auth.headers : {},
             rejectUnauthorized: false
         };
-        if (data.properties !== undefined && data.properties.version !== undefined) {
-            _this.getVersions().then(function (versions) {
-                var ar = versions || [];
-                var member = ar.find(function (version) { return version.key === data.channel; });
+        if (data.properties !== undefined) {
+            _this.db.get("private:properties").then(function (properties) {
+                var ar = properties || [];
+                var member = ar.find(function (property) { return property.key === data.channel; });
                 if (member === undefined) {
                     ar.push({
                         key: data.channel,
-                        value: data.properties.version,
+                        value: data.properties,
                     });
                 }
-                _this.db.set("private:versions", ar);
+                _this.db.set("private:properties", ar);
             });
         }
         if (this.options.devMode) {

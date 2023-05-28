@@ -112,17 +112,17 @@ export class HttpApi {
             channels[key] = {
                 subscription_count: rooms.get(key).size,
                 occupied: true,
-                version: null,
+                properties: null,
             };
         });
-        this.db.get("private:versions").then(function (versions) {
+        this.db.get("private:properties").then(function (properties) {
             let ar = {};
-            versions.forEach(function (version) {
-                ar[version.key] = version.value;
+            properties.forEach(function (property) {
+                ar[property.key] = property.value;
             });
             Object.keys(channels).forEach(function (key) {
                 if (ar[key] !== undefined) {
-                    channels[key].version = ar[key];
+                    channels[key].properties = ar[key];
                 }
             });
             res.json({ channels: channels });
